@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Surveying Calculator</title>
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+            align: center;
+		}
+		h1 {
+			text-align: center;
+		}
+		form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 20px;
+			padding: 20px;
+			background-color: #f2f2f2;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3);
+		}
+		label {
+			margin-right: 10px;
+		}
+		input {
+			margin-bottom: 10px;
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+		}
+		button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			margin-bottom: 20px;
+		}
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+  </head>
+  <body>
+    <div id="container" style="text-align: center;">
+    <label for="latitude">Latitude:</label>
+    <input type="text" id="latitude"><br>
+
+    <label for="longitude">Longitude:</label>
+    <input type="text" id="longitude"><br><br><br>
+
+    <label for="distance">Distance:</label><br><br>
+    <input type="text" id="distance"><br>
+
+    <label for="direction">Direction:</label><br>
+    <small>💡<strong>in Decimal Degrees format. Have them in DMS? <a href="https://africansurveyors.net/quick-tools/coordinate-converter-dms-decimal-degrees/">Convert here</a></strong><br><br>
+    <input type="text" id="direction"><br>
+
+    <p><button onclick="calculateCoordinates()">Calculate</button></p>
+
+    <strong><p id="result"></p></strong>
+
+    <script>
+      function calculateCoordinates() {
+        const R = 6371000; // radius of the earth in meters
+        const lat1 = parseFloat(document.getElementById('latitude').value);
+        const lon1 = parseFloat(document.getElementById('longitude').value);
+        const distance = parseFloat(document.getElementById('distance').value);
+        const direction = parseFloat(document.getElementById('direction').value);
+
+        const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distance / R) +
+            Math.cos(lat1) * Math.sin(distance / R) * Math.cos(direction * Math.PI / 180));
+        const lon2 = lon1 + Math.atan2(Math.sin(direction * Math.PI / 180) *
+            Math.sin(distance / R) * Math.cos(lat1),
+            Math.cos(distance / R) - Math.sin(lat1) * Math.sin(lat2));
+
+        document.getElementById('result').innerHTML = `New coordinates: (${lat2.toFixed(6)}, ${lon2.toFixed(6)})`;
+      }
+    </script>
+</div>
+  </body>
+</html>
