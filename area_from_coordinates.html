@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Area Calculator</title>
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+            align: center;
+		}
+		h1 {
+			text-align: center;
+		}
+		form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 20px;
+			padding: 20px;
+			background-color: #f2f2f2;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3);
+		}
+		label {
+			margin-right: 10px;
+		}
+		input {
+			margin-bottom: 10px;
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+		}
+		button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			margin-bottom: 20px;
+		}
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+    <div id="container" style="text-align: center;">
+	<h1>Area Calculator</h1>
+    <p>
+        <small>💡<strong>Using the app</strong>
+            <ul>
+                <br>Add Lat Lon coordinates
+                <br>Click add to store
+                <br>Add until you have atleast 3 sets of Lat Lon
+                <br>Hit Calculate
+                <br>Result will appear at the bottom
+            </ul>
+        </small>
+    </p>
+	<div style="text-align: center;">
+        <table id="coordinatesTable" style="margin: 0 auto;">
+          <tr>
+            <th>Latitude</th>
+            <th>Longitude</th>
+          </tr>
+        </table>
+      </div>
+      
+	<p>
+		Latitude: <input type="text" id="latitudeInput"><br>
+		Longitude: <input type="text" id="longitudeInput"><br>
+	</p>
+	<button onclick="addCoordinate()">Add</button>
+	<button onclick="calculateArea()">Calculate</button>
+	<button onclick="clearInputs()">Clear</button>
+	<p>Area: <strong><span id="areaResult"></span></strong> km<sup>2</sup> / <strong><span id="hectareResult"></span></strong> hectares</p>
+	<script src="area-calculator.js"></script>
+
+<script>
+    // initialize coordinates array
+let coordinates = [];
+
+// add coordinate to table
+function addCoordinate() {
+	const latitude = parseFloat(document.getElementById("latitudeInput").value);
+	const longitude = parseFloat(document.getElementById("longitudeInput").value);
+	if (!isNaN(latitude) && !isNaN(longitude)) {
+		coordinates.push({lat: latitude, lon: longitude});
+		const tableRow = document.createElement("tr");
+		tableRow.innerHTML = `<td>${latitude}</td><td>${longitude}</td>`;
+		document.getElementById("coordinatesTable").appendChild(tableRow);
+	}
+}
+
+// calculate area
+function calculateArea() {
+	if (coordinates.length < 3) {
+		alert("Please enter at least 3 valid coordinates.");
+		return;
+	}
+	const area = getArea(coordinates);
+	document.getElementById("areaResult").textContent = area.km2.toFixed(2);
+	document.getElementById("hectareResult").textContent = area.ha.toFixed(2);
+}
+
+// clear inputs and table
+function clearInputs() {
+	coordinates = [];
+	document.getElementById("latitudeInput").value = "";
+	document.getElementById("longitudeInput").value = "";
+	document.getElementById("coordinatesTable").innerHTML = `<tr><th>Latitude</th><th>Longitude</th></tr>`;
+	document.getElementById("areaResult").textContent = "";
+	document.getElementById("hectareResult").textContent = "";
+}
+
+// helper function to calculate area given coordinates
+function getArea(coords) {
+	const earthRadius = 6371; // in km
+	let sum = 0;
+	for (let i = 0; i < coords.length; i++) {
+		const p1 = coords[i];
+		const p2 = coords[(i+1) % coords.length];
+		const lat1 = p1.lat * Math.PI / 180;
+		const lat2 = p2.lat * Math.PI / 180;
+		const deltaLat = (p2.lat - p1.lat) * Math.PI / 180;
+		const deltaLon = (p2.lon - p1.lon) * Math.PI / 180;
+		const a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+		          Math.cos(lat1) * Math.cos(lat2) *
+		          Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		const d = earthRadius * c;
+		sum += d;
+	}
+	const km2 = 0.5 * sum * earthRadius;
+	const ha = km2 * 100;
+	return {km2, ha};
+}
+
+</script>
+</div>
+</body>
+</html>

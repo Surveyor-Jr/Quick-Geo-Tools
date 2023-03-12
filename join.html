@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Surveying Join Calculator</title>
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+            align: center;
+		}
+		h1 {
+			text-align: center;
+		}
+		form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 20px;
+			padding: 20px;
+			background-color: #f2f2f2;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3);
+		}
+		label {
+			margin-right: 10px;
+		}
+		input {
+			margin-bottom: 10px;
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+		}
+		button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			margin-bottom: 20px;
+		}
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+	<h1>Surveying Join Calculator</h1>
+	<p style="text-align: center">Enter the coordinates of two points to calculate the join:</p>
+	<form>
+	<div style="display: flex; flex-wrap: wrap;">
+		<div style="flex-basis: 50%; padding-right: 10px;">
+			<label for="lat1">Latitude 1:</label>
+			<input type="number" id="lat1" name="lat1" step="0.000001">
+		</div>
+
+		<div style="flex-basis: 50%; padding-left: 10px;">
+			<label for="long1">Longitude 1:</label>
+			<input type="number" id="long1" name="long1" step="0.000001">
+		</div>
+	</div>
+
+	<div style="display: flex; flex-wrap: wrap;">
+		<div style="flex-basis: 50%; padding-right: 10px;">
+			<label for="lat2">Latitude 2:</label>
+			<input type="number" id="lat2" name="lat2" step="0.000001">
+		</div>
+
+		<div style="flex-basis: 50%; padding-left: 10px;">
+			<label for="long2">Longitude 2:</label>
+			<input type="number" id="long2" name="long2" step="0.000001">
+		</div>
+	</div>
+
+	<input type="button" value="Calculate Join" onclick="calculateJoin()"><br><br>
+
+	<label for="angleDecimal">Angle (Decimal Degrees):</label>
+	<span id="angleDecimal"></span><br>
+
+	<label for="angleDMS">Angle (DMS):</label>
+	<span id="angleDMS"></span><br>
+
+	<label for="distanceMeters">Distance (Meters):</label>
+	<span id="distanceMeters"></span><br>
+
+	<label for="distanceKilometers">Distance (Kilometers):</label>
+	<span id="distanceKilometers"></span><br>
+</form>
+
+    <script>
+        function calculateJoin() {
+          // Get the input values
+          var lat1 = parseFloat(document.getElementById("lat1").value);
+          var long1 = parseFloat(document.getElementById("long1").value);
+          var lat2 = parseFloat(document.getElementById("lat2").value);
+          var long2 = parseFloat(document.getElementById("long2").value);
+        
+          // Convert the coordinates to radians
+          var lat1Rad = lat1 * Math.PI / 180;
+          var long1Rad = long1 * Math.PI / 180;
+          var lat2Rad = lat2 * Math.PI / 180;
+          var long2Rad = long2 * Math.PI / 180;
+        
+          // Calculate the angle between the two points
+          var dLong = long2Rad - long1Rad;
+          var y = Math.sin(dLong) * Math.cos(lat2Rad);
+          var x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLong);
+          var angleRad = Math.atan2(y, x);
+          var angleDeg = angleRad * 180 / Math.PI;
+          if (angleDeg < 0) {
+            angleDeg += 360;
+          }
+        
+          // Calculate the distance between the two points
+          var R = 6371000; // Radius of the earth in meters
+          var dLat = lat2Rad - lat1Rad;
+          var dLong = long2Rad - long1Rad;
+          var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+                  Math.sin(dLong / 2) * Math.sin(dLong / 2);
+          var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          var distanceMeters = R * c;
+          var distanceKilometers = distanceMeters / 1000;
+        
+          // Convert the angle to DMS format
+          var angleDegFloor = Math.floor(angleDeg);
+          var angleMin = (angleDeg - angleDegFloor) * 60;
+          var angleMinFloor = Math.floor(angleMin);
+          var angleSec = (angleMin - angleMinFloor) * 60;
+          var angleSecRound = Math.round(angleSec * 100) / 100;
+          if (angleSecRound == 60) {
+            angleMinFloor += 1;
+            angleSecRound = 0;
+          }
+          if (angleMinFloor == 60) {
+            angleDegFloor += 1;
+            angleMinFloor = 0;
+          }
+        
+          // Display the results
+          document.getElementById("angleDecimal").innerHTML = angleDeg.toFixed(6) + "°";
+          document.getElementById("angleDMS").innerHTML = angleDegFloor + "° " + angleMinFloor + "' " + angleSecRound + '"';
+          document.getElementById("distanceMeters").innerHTML = distanceMeters.toFixed(2) + " m";
+          document.getElementById("distanceKilometers").innerHTML = distanceKilometers.toFixed(2) + " km";
+        }
+        </script>
+        
+</body>
+</html>

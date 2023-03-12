@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Coordinate Conversion App</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+            align: center;
+		}
+		h1 {
+			text-align: center;
+		}
+		form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 20px;
+			padding: 20px;
+			background-color: #f2f2f2;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3);
+		}
+		label {
+			margin-right: 10px;
+		}
+		input {
+			margin-bottom: 10px;
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+		}
+		button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			margin-bottom: 20px;
+		}
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+    <div id="container" style="text-align: center;">
+	<h1>Coordinate Conversion App</h1>
+	<p>Enter either latitude or longitude coordinate:</p>
+    <small>💡 for <strong>DMS</strong> use the example coordinate as reference: <strong>48°51'24.5"</strong></small>
+    <hr>
+	<label for="coordinate_input">Coordinate:</label>
+	<input type="text" id="coordinate_input" name="coordinate_input">
+	<br><br>
+	<label for="format_select">Format:</label>
+	<select id="format_select">
+		<option value="DMS">DMS</option>
+		<option value="Decimal">Decimal Degrees</option>
+	</select>
+    <br>
+    <small>💡 The coordinate format you just entered above</small>
+	<br><br>
+	<button onclick="convertCoordinate()">Convert</button>
+	<button onclick="clearInput()">Clear</button>
+    <hr>
+	<p>Result:</p>
+	<label for="result_output">Coordinate:</label>
+	<input type="text" id="result_output" name="result_output" readonly>
+	<script>
+		function convertCoordinate() {
+			var input_value = document.getElementById("coordinate_input").value.trim();
+			if (!input_value) {
+				alert("Please enter a coordinate value.");
+				return;
+			}
+			var input_format = document.getElementById("format_select").value;
+			var result_format = (input_format == "DMS") ? "Decimal" : "DMS";
+			var result;
+			if (input_format == "DMS") {
+				// Input coordinate is in DMS format
+				var parts = input_value.match(/(\d+)\D+(\d+)\D+([\d\.]+)/);
+				if (!parts) {
+					alert("Invalid DMS coordinate format.");
+					return;
+				}
+				var degrees = parseFloat(parts[1]);
+				var minutes = parseFloat(parts[2]);
+				var seconds = parseFloat(parts[3]);
+				var decimal_degrees = degrees + minutes/60 + seconds/3600;
+				result = decimal_degrees.toFixed(6);
+			} else {
+				// Input coordinate is in decimal degree format
+				var decimal_degrees = parseFloat(input_value);
+				if (isNaN(decimal_degrees)) {
+					alert("Invalid decimal degree coordinate format.");
+					return;
+				}
+				var degrees = Math.floor(Math.abs(decimal_degrees));
+				var minutes = Math.floor((Math.abs(decimal_degrees) - degrees) * 60);
+				var seconds = ((Math.abs(decimal_degrees) - degrees - minutes/60) * 3600).toFixed(2);
+				if (decimal_degrees < 0) {
+					degrees *= -1;
+				}
+				result = degrees + "°" + minutes + "'" + seconds + "\"";
+			}
+			document.getElementById("result_output").value = result;
+			document.getElementById("format_select").value = result_format;
+		}
+
+		function clearInput() {
+			document.getElementById("coordinate_input").value = "";
+			document.getElementById("result_output").value = "";
+			document.getElementById("format_select").value = "DMS";
+		}
+	</script>
+</div>
+</body>
+</html>
